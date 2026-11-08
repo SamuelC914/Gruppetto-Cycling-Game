@@ -1,206 +1,224 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Résultats Saison Cyclisme</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 40px;
-        }
-        h1 {
-            color: navy;
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: darkred;
-            margin-top: 20px;
-        }
-        a {
-            display: block; /* Rend les liens en bloc pour qu'ils apparaissent chacun sur une nouvelle ligne */
-            margin: 2px 0; /* Espacement entre les liens */
-            color: darkblue;
-            text-decoration: none; /* Enlève le soulignement par défaut des liens */
-        }
-        a:hover {
-            text-decoration: underline; /* Souligne le lien au survol pour une meilleure visibilité */
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Effectifs cyclistes · Filtres interactifs</title>
+<style>
+:root { --ink:#142f39; --sub:#627480; --blue:#175b6f; --blue-2:#e7f3f6; --border:#d9e5e8; --bg:#f4f8f8; --white:#fff; --good:#256e58; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:1320px;margin:0 auto;padding:34px 24px 60px}
+.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800;color:var(--blue);margin:0 0 8px}
+.heading{display:flex;gap:20px;justify-content:space-between;align-items:end;flex-wrap:wrap;margin-bottom:24px}
+h1{font-size:clamp(27px,3.6vw,38px);line-height:1.13;margin:0 0 7px;letter-spacing:-.035em}
+.subtitle{color:var(--sub);margin:0}
+.tally{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:13px;padding:10px 16px;min-width:110px;box-shadow:0 3px 14px #193a4508}
+.kpi b{font-size:23px;line-height:1.15;display:block;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:11px;color:var(--sub);font-weight:600;letter-spacing:.03em}
+.panel{background:#fff;border:1px solid var(--border);box-shadow:0 8px 24px #153b4e0b;border-radius:18px;padding:23px 24px 20px;margin-bottom:20px}
+.panel-title{font-weight:750;margin:0 0 16px;display:flex;align-items:center;gap:9px;font-size:16px}
+.panel-title svg{width:19px;height:19px;stroke:var(--blue)}
+.filter-primary{display:grid;grid-template-columns:2fr 1fr 1fr 2fr;gap:14px}
+.field{min-width:0}
+label{display:block;font-size:12px;font-weight:750;color:#354f5b;margin:0 0 6px}
+input,select{font:inherit;color:var(--ink);background:#fff;border:1px solid #cbdbe0;border-radius:9px;height:41px;padding:8px 11px;width:100%;outline:none;transition:border-color .14s,box-shadow .14s}
+input:focus,select:focus{border-color:#3585a0;box-shadow:0 0 0 3px #3585a020}
+input::placeholder{color:#99a8ae}
+.group-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--sub);margin:22px 0 11px}
+.filter-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.stat-input{position:relative}
+.stat-input input{padding-right:52px}
+.stat-input .scale{position:absolute;right:11px;top:10px;color:#8d9fa6;font-size:12px;pointer-events:none}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:18px;flex-wrap:wrap}
+.helper{font-size:12px;color:var(--sub)}
+button{font:inherit;cursor:pointer}
+.reset{background:#fff;border:1px solid #cbdbe0;border-radius:9px;padding:9px 14px;color:var(--blue);font-weight:700}
+.reset:hover{background:var(--blue-2)}
+.table-panel{background:#fff;border:1px solid var(--border);box-shadow:0 8px 24px #153b4e0b;border-radius:18px;overflow:hidden}
+.table-head{padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.table-head h2{font-size:16px;margin:0}
+.table-head .tip{color:var(--sub);font-size:12px}
+.table-meta{display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px}
+.legend{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px;font-weight:650;color:#455d68}
+.legend-bar{display:inline-block;width:116px;height:12px;border-radius:999px;border:1px solid #cbd9df;background:linear-gradient(90deg,#2b6cb0 0%,#f8f8f6 50%,#b91c38 100%)}
+.table-scroll{overflow-x:auto}
+table{width:100%;min-width:1010px;border-collapse:collapse;text-align:left}
+thead{background:#edf4f6}
+th{color:#385664;white-space:nowrap;font-size:12px;font-weight:800;letter-spacing:.018em}
+th,td{padding:12px 16px;border-bottom:1px solid #e9eff1}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#f6fafb}
+th button{color:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;border:0;background:transparent;padding:0;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+th button:hover{color:var(--blue)}
+.sort{color:#93a8b1;font-size:12px;min-width:12px}
+th button[aria-sort="ascending"] .sort,th button[aria-sort="descending"] .sort{color:#17667f}
+.name{font-weight:700;white-space:nowrap}
+.team{color:#47616c;white-space:nowrap}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+th.num button{justify-content:flex-end;width:100%}
+.rating{display:inline-block;min-width:32px;font-weight:750}
+.rating-cell{font-weight:750;border-bottom-color:#ffffff55;transition:background-color .12s linear}
+.total-cell{background:#e7f3f6;font-weight:850;color:#175b6f;white-space:nowrap}
+.empty{padding:48px 22px;text-align:center;color:var(--sub);display:none}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px}
+.footer-note{margin:15px 3px 0;font-size:12px;color:#748891}
+@media(max-width:900px){.filter-primary{grid-template-columns:repeat(2,minmax(0,1fr))}.filter-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:550px){.wrap{padding:22px 12px 36px}.panel{padding:19px 15px}.filter-primary,.filter-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.filter-primary .search-field,.filter-primary .team-field{grid-column:span 2}.table-head{padding:15px}.tally{width:100%}.kpi{flex:1}.filter-stats>.field:last-child{grid-column:span 2}}
+@media(prefers-reduced-motion:reduce){input,select{transition:none}}
+</style>
 </head>
 <body>
+<main class="wrap">
+  <header class="heading">
+    <div><p class="eyebrow">Base de données · Saison 4</p><h1>Effectifs cyclistes</h1><p class="subtitle">Retrouvez les coureurs en croisant les critères de votre choix.</p></div>
+    <div class="tally" aria-live="polite"><div class="kpi"><b id="count-visible">—</b><span>Coureurs affichés</span></div><div class="kpi"><b id="count-total">—</b><span>Coureurs au total</span></div></div>
+  </header>
+  <section class="panel" aria-labelledby="filtres-title">
+    <h2 id="filtres-title" class="panel-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg> Filtrer les coureurs</h2>
+    <div class="filter-primary">
+      <div class="field search-field"><label for="search">Rechercher un coureur ou un pays</label><input id="search" type="search" placeholder="Nom ou pays…" autocomplete="off"></div>
+      <div class="field"><label for="age-min">Âge minimum</label><input id="age-min" type="number" inputmode="numeric" min="0" step="1" placeholder="Ex. 20"></div>
+      <div class="field"><label for="age-max">Âge maximum</label><input id="age-max" type="number" inputmode="numeric" min="0" step="1" placeholder="Ex. 30"></div>
+      <div class="field team-field"><label for="team">Équipe</label><select id="team"><option value="">Toutes les équipes</option></select></div>
+    </div>
+    <p class="group-title">Notes minimales (sur 30)</p>
+    <div class="filter-stats">
+      <div class="field"><label for="min-sprinteur">Sprinteur</label><div class="stat-input"><input id="min-sprinteur" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="Toutes"><span class="scale">/ 30</span></div></div>
+      <div class="field"><label for="min-rouleur">Rouleur</label><div class="stat-input"><input id="min-rouleur" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="Toutes"><span class="scale">/ 30</span></div></div>
+      <div class="field"><label for="min-flandrien">Flandrien</label><div class="stat-input"><input id="min-flandrien" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="Toutes"><span class="scale">/ 30</span></div></div>
+      <div class="field"><label for="min-puncheur">Puncheur</label><div class="stat-input"><input id="min-puncheur" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="Toutes"><span class="scale">/ 30</span></div></div>
+      <div class="field"><label for="min-grimpeur">Grimpeur</label><div class="stat-input"><input id="min-grimpeur" type="number" min="0" max="30" step="0.1" inputmode="decimal" placeholder="Toutes"><span class="scale">/ 30</span></div></div>
+    </div>
+    <div class="actions"><div class="helper" id="filter-hint">Les filtres se cumulent et s'appliquent automatiquement.</div><button class="reset" type="button" id="reset">Réinitialiser les filtres</button></div>
+  </section>
+  <section class="table-panel" aria-labelledby="results-title">
+    <div class="table-head"><h2 id="results-title">Liste des coureurs</h2><div class="table-meta"><div class="tip">Cliquez sur un titre de colonne pour trier ↑↓</div><div class="legend" aria-label="Échelle des notes de 0 à 30, du bleu au rouge"><span>0 · Faible</span><span class="legend-bar" aria-hidden="true"></span><span>Élevée · 30</span></div></div></div>
+    <div class="table-scroll"><table aria-label="Coureurs filtrés"><thead><tr>
+      <th><button data-sort="nom" type="button">Nom <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th><button data-sort="pays" type="button">Pays <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="age" type="button">Âge <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="sprinteur" type="button">Sprinteur <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="rouleur" type="button">Rouleur <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="flandrien" type="button">Flandrien <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="puncheur" type="button">Puncheur <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="grimpeur" type="button">Grimpeur <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th class="num"><button data-sort="total" type="button">TOTAL <span class="sort" aria-hidden="true">↕</span></button></th>
+      <th><button data-sort="equipe" type="button">Équipe <span class="sort" aria-hidden="true">↕</span></button></th>
+    </tr></thead><tbody id="riders"></tbody></table></div>
+    <div class="empty" id="empty"><b>Aucun coureur ne correspond à ces critères.</b>Modifiez un filtre ou réinitialisez-les pour retrouver les coureurs.</div>
+  </section>
+  <p class="footer-note">Les données sont intégrées à cette page : elle fonctionne hors connexion, sans serveur ni fichier CSV supplémentaire.</p>
+</main>
+<script>
+"use strict";
+const riders = [{"nom":"Adrien Morel","pays":"Français","age":35,"sprinteur":7.0,"rouleur":20.5,"flandrien":15.0,"puncheur":23.5,"grimpeur":24.2,"equipe":"Gruppetto Cycling Beer"},{"nom":"Pablo Correia","pays":"Portugais","age":22,"sprinteur":8.1,"rouleur":11.8,"flandrien":7.1,"puncheur":15.0,"grimpeur":19.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Óscar Domínguez","pays":"Espagnol","age":33,"sprinteur":8.9,"rouleur":20.0,"flandrien":10.9,"puncheur":28.7,"grimpeur":28.9,"equipe":"Gruppetto Cycling Beer"},{"nom":"Marc Thill","pays":"Luxembourgeois","age":27,"sprinteur":12.8,"rouleur":8.8,"flandrien":9.8,"puncheur":14.1,"grimpeur":15.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Tobias Hahn","pays":"Allemand","age":32,"sprinteur":8.0,"rouleur":13.0,"flandrien":10.0,"puncheur":15.0,"grimpeur":16.5,"equipe":"Gruppetto Cycling Beer"},{"nom":"Bruno Herrera","pays":"Argentin","age":37,"sprinteur":6.0,"rouleur":10.8,"flandrien":16.0,"puncheur":6.8,"grimpeur":8.7,"equipe":"Gruppetto Cycling Beer"},{"nom":"Luc Reuter","pays":"Luxembourgeois","age":35,"sprinteur":6.0,"rouleur":13.1,"flandrien":10.0,"puncheur":21.7,"grimpeur":4.1,"equipe":"Gruppetto Cycling Beer"},{"nom":"Vikram Singh","pays":"Indien","age":35,"sprinteur":7.9,"rouleur":5.9,"flandrien":5.4,"puncheur":14.9,"grimpeur":11.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Samuel Pinot","pays":"Français","age":28,"sprinteur":9.5,"rouleur":9.5,"flandrien":10.9,"puncheur":9.5,"grimpeur":8.7,"equipe":"Gruppetto Cycling Beer"},{"nom":"Thomas Taylor","pays":"Australie","age":26,"sprinteur":10.5,"rouleur":8.0,"flandrien":9.5,"puncheur":15.1,"grimpeur":17.8,"equipe":"Gruppetto Cycling Beer"},{"nom":"Grotad Bjerg","pays":"Suède","age":27,"sprinteur":8.8,"rouleur":8.8,"flandrien":10.6,"puncheur":8.8,"grimpeur":8.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Léandre Beaumont","pays":"France","age":18,"sprinteur":7.8,"rouleur":6.8,"flandrien":9.3,"puncheur":8.8,"grimpeur":5.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Emil Bjørnsen","pays":"Danemark","age":18,"sprinteur":8.0,"rouleur":8.0,"flandrien":10.0,"puncheur":8.1,"grimpeur":6.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Théodore Vigneault","pays":"France","age":19,"sprinteur":5.0,"rouleur":10.0,"flandrien":5.0,"puncheur":7.8,"grimpeur":9.6,"equipe":"Gruppetto Cycling Beer"},{"nom":"Manuel Rodríguez","pays":"Espagne","age":22,"sprinteur":8.0,"rouleur":8.0,"flandrien":8.0,"puncheur":8.0,"grimpeur":8.0,"equipe":"Gruppetto Cycling Beer"},{"nom":"Alexei Petrov","pays":"Ukrainien","age":31,"sprinteur":11.2,"rouleur":26.0,"flandrien":12.2,"puncheur":24.5,"grimpeur":26.2,"equipe":"Arzhed an Argenon"},{"nom":"Miguel Ferreira","pays":"Portugais","age":30,"sprinteur":16.0,"rouleur":17.0,"flandrien":16.0,"puncheur":15.0,"grimpeur":16.0,"equipe":"Arzhed an Argenon"},{"nom":"Bruno Maes","pays":"Belge","age":30,"sprinteur":12.0,"rouleur":25.0,"flandrien":30.0,"puncheur":8.0,"grimpeur":5.0,"equipe":"Arzhed an Argenon"},{"nom":"Rohan Kapoor","pays":"Indien","age":31,"sprinteur":8.0,"rouleur":8.1,"flandrien":7.0,"puncheur":7.1,"grimpeur":6.5,"equipe":"Arzhed an Argenon"},{"nom":"Julián Ferreira","pays":"Argentin","age":37,"sprinteur":11.0,"rouleur":8.2,"flandrien":5.0,"puncheur":9.2,"grimpeur":2.8,"equipe":"Arzhed an Argenon"},{"nom":"Ren Kobayashi","pays":"Japonais","age":31,"sprinteur":8.0,"rouleur":10.0,"flandrien":5.0,"puncheur":6.0,"grimpeur":6.4,"equipe":"Arzhed an Argenon"},{"nom":"Filipe Godinho","pays":"Portugais","age":36,"sprinteur":6.2,"rouleur":3.2,"flandrien":8.2,"puncheur":3.7,"grimpeur":3.0,"equipe":"Arzhed an Argenon"},{"nom":"Park Ji-hoon","pays":"Coréen","age":35,"sprinteur":9.0,"rouleur":3.2,"flandrien":8.0,"puncheur":4.2,"grimpeur":4.9,"equipe":"Arzhed an Argenon"},{"nom":"Kim Min-jun","pays":"Coréen","age":22,"sprinteur":8.0,"rouleur":10.4,"flandrien":9.0,"puncheur":9.4,"grimpeur":10.0,"equipe":"Arzhed an Argenon"},{"nom":"Moritz Reinhardt","pays":"Allemand","age":32,"sprinteur":7.0,"rouleur":5.8,"flandrien":8.0,"puncheur":4.8,"grimpeur":7.7,"equipe":"Arzhed an Argenon"},{"nom":"Clément Le Guennec","pays":"France","age":28,"sprinteur":9.3,"rouleur":9.3,"flandrien":11.9,"puncheur":9.3,"grimpeur":8.0,"equipe":"Arzhed an Argenon"},{"nom":"Antonio Martín","pays":"Espagne","age":21,"sprinteur":8.7,"rouleur":12.7,"flandrien":18.1,"puncheur":11.7,"grimpeur":6.0,"equipe":"Arzhed an Argenon"},{"nom":"José Pablo González","pays":"Espagne","age":23,"sprinteur":10.5,"rouleur":10.2,"flandrien":7.2,"puncheur":6.0,"grimpeur":5.0,"equipe":"Arzhed an Argenon"},{"nom":"Maxime Marchand","pays":"France","age":27,"sprinteur":10.1,"rouleur":8.7,"flandrien":8.7,"puncheur":8.0,"grimpeur":8.0,"equipe":"Arzhed an Argenon"},{"nom":"Matías Escobar","pays":"Mexique","age":23,"sprinteur":5.0,"rouleur":5.0,"flandrien":5.0,"puncheur":5.9,"grimpeur":16.9,"equipe":"Arzhed an Argenon"},{"nom":"Matteo Fiorentino","pays":"Italie","age":21,"sprinteur":5.0,"rouleur":7.0,"flandrien":5.0,"puncheur":10.3,"grimpeur":14.5,"equipe":"Arzhed an Argenon"},{"nom":"Alessandro Romano","pays":"Italie","age":27,"sprinteur":22.0,"rouleur":10.0,"flandrien":8.0,"puncheur":7.0,"grimpeur":9.0,"equipe":"Arzhed an Argenon"},{"nom":"Juan Pérez","pays":"Colombie","age":23,"sprinteur":19.0,"rouleur":5.0,"flandrien":10.0,"puncheur":5.0,"grimpeur":5.0,"equipe":"Arzhed an Argenon"},{"nom":"Hans Müller","pays":"Allemand","age":21,"sprinteur":11.6,"rouleur":11.6,"flandrien":24.0,"puncheur":14.6,"grimpeur":7.0,"equipe":"HTC-Highroad"},{"nom":"Jean Dupont","pays":"Français","age":21,"sprinteur":7.0,"rouleur":7.0,"flandrien":6.0,"puncheur":16.9,"grimpeur":25.7,"equipe":"HTC-Highroad"},{"nom":"Riccardo De Luca","pays":"Italien","age":21,"sprinteur":5.0,"rouleur":15.4,"flandrien":5.0,"puncheur":17.4,"grimpeur":21.0,"equipe":"HTC-Highroad"},{"nom":"Sven Hoekstra","pays":"Néerlandais","age":21,"sprinteur":17.9,"rouleur":9.1,"flandrien":13.1,"puncheur":6.0,"grimpeur":8.0,"equipe":"HTC-Highroad"},{"nom":"George Bennett","pays":"Britannique","age":31,"sprinteur":6.0,"rouleur":15.0,"flandrien":6.0,"puncheur":24.8,"grimpeur":26.6,"equipe":"HTC-Highroad"},{"nom":"Cian O’Connor","pays":"Irlandais","age":21,"sprinteur":7.0,"rouleur":10.0,"flandrien":21.1,"puncheur":14.0,"grimpeur":7.0,"equipe":"HTC-Highroad"},{"nom":"Peter Turner","pays":"Britannique","age":24,"sprinteur":7.0,"rouleur":9.0,"flandrien":8.0,"puncheur":11.7,"grimpeur":18.4,"equipe":"HTC-Highroad"},{"nom":"Damien Giraud","pays":"Français","age":24,"sprinteur":9.0,"rouleur":7.0,"flandrien":5.0,"puncheur":9.4,"grimpeur":15.6,"equipe":"HTC-Highroad"},{"nom":"Markus Cavson","pays":"Suède","age":28,"sprinteur":8.6,"rouleur":8.6,"flandrien":8.6,"puncheur":10.6,"grimpeur":12.5,"equipe":"HTC-Highroad"},{"nom":"Javier Ruiz","pays":"Espagne","age":20,"sprinteur":6.0,"rouleur":11.8,"flandrien":5.0,"puncheur":13.7,"grimpeur":18.5,"equipe":"HTC-Highroad"},{"nom":"Junior Cavinho","pays":"France","age":27,"sprinteur":8.4,"rouleur":10.3,"flandrien":9.0,"puncheur":8.4,"grimpeur":8.4,"equipe":"HTC-Highroad"},{"nom":"Dante Bellini","pays":"Italie","age":23,"sprinteur":7.2,"rouleur":9.3,"flandrien":9.2,"puncheur":17.1,"grimpeur":14.2,"equipe":"HTC-Highroad"},{"nom":"Antoine Lefèvre","pays":"France","age":18,"sprinteur":6.0,"rouleur":9.0,"flandrien":6.0,"puncheur":7.0,"grimpeur":7.0,"equipe":"HTC-Highroad"},{"nom":"Diego Castillo","pays":"Espagnol","age":25,"sprinteur":6.0,"rouleur":26.2,"flandrien":6.0,"puncheur":30.0,"grimpeur":30.0,"equipe":"Quick Step Pulsar"},{"nom":"Joris Van Dijk","pays":"Néerlandais","age":22,"sprinteur":5.0,"rouleur":6.1,"flandrien":6.0,"puncheur":7.1,"grimpeur":6.7,"equipe":"Quick Step Pulsar"},{"nom":"Chen Wei","pays":"Chinois","age":30,"sprinteur":5.0,"rouleur":6.1,"flandrien":5.0,"puncheur":6.1,"grimpeur":6.8,"equipe":"Quick Step Pulsar"},{"nom":"Davide Lombardi","pays":"Italien","age":21,"sprinteur":6.0,"rouleur":10.0,"flandrien":5.0,"puncheur":13.0,"grimpeur":11.1,"equipe":"Quick Step Pulsar"},{"nom":"Baptiste Renault","pays":"Français","age":24,"sprinteur":9.0,"rouleur":8.4,"flandrien":9.0,"puncheur":8.4,"grimpeur":8.7,"equipe":"Quick Step Pulsar"},{"nom":"Jürgen Vogel","pays":"Allemand","age":25,"sprinteur":8.0,"rouleur":8.2,"flandrien":6.0,"puncheur":9.2,"grimpeur":10.6,"equipe":"Quick Step Pulsar"},{"nom":"Javier Delgado","pays":"Espagnol","age":22,"sprinteur":7.0,"rouleur":12.5,"flandrien":7.0,"puncheur":8.5,"grimpeur":14.2,"equipe":"Quick Step Pulsar"},{"nom":"Enrico De Luca","pays":"Italien","age":22,"sprinteur":6.0,"rouleur":11.8,"flandrien":9.0,"puncheur":11.8,"grimpeur":10.1,"equipe":"Quick Step Pulsar"},{"nom":"Random Equipier","pays":"","age":28,"sprinteur":8.7,"rouleur":9.5,"flandrien":8.7,"puncheur":9.5,"grimpeur":9.9,"equipe":"Quick Step Pulsar"},{"nom":"Gianluca Rossi","pays":"Italie","age":20,"sprinteur":5.0,"rouleur":9.1,"flandrien":6.0,"puncheur":11.1,"grimpeur":13.7,"equipe":"Quick Step Pulsar"},{"nom":"Charles Anderson","pays":"Etats-Unis","age":22,"sprinteur":5.0,"rouleur":7.0,"flandrien":5.0,"puncheur":12.0,"grimpeur":17.9,"equipe":"Quick Step Pulsar"},{"nom":"Random Equipier 2","pays":"","age":27,"sprinteur":8.0,"rouleur":9.5,"flandrien":8.0,"puncheur":9.5,"grimpeur":10.1,"equipe":"Quick Step Pulsar"},{"nom":"Viktor Mikhailov","pays":"Slovaquie","age":18,"sprinteur":7.0,"rouleur":11.7,"flandrien":8.0,"puncheur":10.7,"grimpeur":13.0,"equipe":"Quick Step Pulsar"},{"nom":"Pablo Fernández","pays":"Espagne","age":19,"sprinteur":8.0,"rouleur":8.0,"flandrien":8.0,"puncheur":8.0,"grimpeur":8.0,"equipe":"Quick Step Pulsar"},{"nom":"Carlos López","pays":"Espagnol","age":30,"sprinteur":12.0,"rouleur":12.0,"flandrien":25.0,"puncheur":30.0,"grimpeur":21.0,"equipe":"Lotto"},{"nom":"Nuno Cordeiro","pays":"Portugais","age":36,"sprinteur":14.6,"rouleur":17.6,"flandrien":8.5,"puncheur":3.6,"grimpeur":5.0,"equipe":"Lotto"},{"nom":"Luca Bianchi","pays":"Italien","age":34,"sprinteur":23.8,"rouleur":21.6,"flandrien":24.6,"puncheur":15.0,"grimpeur":10.0,"equipe":"Lotto"},{"nom":"Lucas Vermeer","pays":"Néerlandais","age":33,"sprinteur":5.0,"rouleur":14.0,"flandrien":10.0,"puncheur":14.7,"grimpeur":21.3,"equipe":"Lotto"},{"nom":"Lucas Herrera","pays":"Espagnol","age":34,"sprinteur":7.0,"rouleur":10.0,"flandrien":11.0,"puncheur":14.0,"grimpeur":18.0,"equipe":"Lotto"},{"nom":"Samuel Dierckx","pays":"Belge","age":28,"sprinteur":8.1,"rouleur":6.0,"flandrien":11.1,"puncheur":14.1,"grimpeur":9.1,"equipe":"Lotto"},{"nom":"Lucas Almeida","pays":"Brésilien","age":32,"sprinteur":5.0,"rouleur":5.0,"flandrien":5.0,"puncheur":5.0,"grimpeur":5.0,"equipe":"Lotto"},{"nom":"Patrick Schmit","pays":"Luxembourgeois","age":36,"sprinteur":2.0,"rouleur":6.0,"flandrien":6.0,"puncheur":6.0,"grimpeur":2.0,"equipe":"Lotto"},{"nom":"Klaus Herzog","pays":"Allemand","age":31,"sprinteur":6.1,"rouleur":6.1,"flandrien":7.1,"puncheur":8.1,"grimpeur":6.1,"equipe":"Lotto"},{"nom":"Youssef Adel","pays":"Égyptien","age":25,"sprinteur":5.3,"rouleur":7.3,"flandrien":5.3,"puncheur":6.3,"grimpeur":6.3,"equipe":"Lotto"},{"nom":"John Doe","pays":"France","age":28,"sprinteur":9.1,"rouleur":9.1,"flandrien":9.1,"puncheur":9.1,"grimpeur":9.1,"equipe":"Lotto"},{"nom":"Rajesh Kumar","pays":"Inde","age":25,"sprinteur":6.8,"rouleur":8.8,"flandrien":9.8,"puncheur":13.8,"grimpeur":7.8,"equipe":"Lotto"},{"nom":"David Davis","pays":"Angleterre","age":24,"sprinteur":9.8,"rouleur":9.8,"flandrien":10.8,"puncheur":11.8,"grimpeur":8.8,"equipe":"Lotto"},{"nom":"Bjorn Bergstrom","pays":"Suède","age":27,"sprinteur":8.6,"rouleur":8.6,"flandrien":8.6,"puncheur":8.6,"grimpeur":8.6,"equipe":"Lotto"},{"nom":"Alejandro Montoya","pays":"Espagne","age":20,"sprinteur":10.85,"rouleur":9.9,"flandrien":7.9,"puncheur":7.9,"grimpeur":9.9,"equipe":"Lotto"},{"nom":"Ethan Hawthorne","pays":"Angleterre","age":19,"sprinteur":9.8,"rouleur":9.8,"flandrien":9.8,"puncheur":8.8,"grimpeur":9.8,"equipe":"Lotto"},{"nom":"Thomas Walker","pays":"Angleterre","age":20,"sprinteur":6.0,"rouleur":9.0,"flandrien":8.0,"puncheur":10.0,"grimpeur":10.0,"equipe":"Lotto"},{"nom":"Akira Tanaka","pays":"Japonais","age":21,"sprinteur":6.5,"rouleur":6.5,"flandrien":7.5,"puncheur":7.2,"grimpeur":9.1,"equipe":"Alpine - CMA CGM"},{"nom":"Milan Brouwer","pays":"Néerlandais","age":33,"sprinteur":11.1,"rouleur":10.1,"flandrien":13.1,"puncheur":20.1,"grimpeur":18.1,"equipe":"Alpine - CMA CGM"},{"nom":"Maxime Dujardin","pays":"Belge","age":30,"sprinteur":25.4,"rouleur":18.4,"flandrien":20.4,"puncheur":10.4,"grimpeur":5.4,"equipe":"Alpine - CMA CGM"},{"nom":"Émile Roche","pays":"Français","age":22,"sprinteur":20.8,"rouleur":15.8,"flandrien":13.0,"puncheur":7.8,"grimpeur":7.7,"equipe":"Alpine - CMA CGM"},{"nom":"Omar Nasser","pays":"Égyptien","age":36,"sprinteur":8.0,"rouleur":5.2,"flandrien":6.0,"puncheur":15.2,"grimpeur":11.8,"equipe":"Alpine - CMA CGM"},{"nom":"Oliver Clarke","pays":"Britannique","age":27,"sprinteur":6.0,"rouleur":6.5,"flandrien":9.0,"puncheur":11.7,"grimpeur":10.5,"equipe":"Alpine - CMA CGM"},{"nom":"Thomas Ramos","pays":"France","age":28,"sprinteur":9.2,"rouleur":8.7,"flandrien":10.3,"puncheur":10.2,"grimpeur":8.7,"equipe":"Alpine - CMA CGM"},{"nom":"Étienne Martin","pays":"France","age":29,"sprinteur":10.0,"rouleur":17.3,"flandrien":11.8,"puncheur":17.0,"grimpeur":24.0,"equipe":"Alpine - CMA CGM"},{"nom":"James Smith","pays":"Angleterre","age":28,"sprinteur":5.0,"rouleur":5.6,"flandrien":5.0,"puncheur":13.6,"grimpeur":20.9,"equipe":"Alpine - CMA CGM"},{"nom":"Luis Baskareikiz","pays":"Espagne","age":27,"sprinteur":8.6,"rouleur":8.6,"flandrien":8.6,"puncheur":9.5,"grimpeur":10.4,"equipe":"Alpine - CMA CGM"},{"nom":"Esteban Paredes","pays":"Espagne","age":19,"sprinteur":5.0,"rouleur":6.9,"flandrien":5.0,"puncheur":11.9,"grimpeur":13.8,"equipe":"Alpine - CMA CGM"},{"nom":"Oskar Holm","pays":"Allemagne","age":21,"sprinteur":5.0,"rouleur":8.7,"flandrien":6.2,"puncheur":7.0,"grimpeur":5.0,"equipe":"Alpine - CMA CGM"},{"nom":"Clément Vidal","pays":"France","age":23,"sprinteur":5.0,"rouleur":13.0,"flandrien":5.0,"puncheur":12.0,"grimpeur":14.0,"equipe":"Alpine - CMA CGM"},{"nom":"Vincent Rousseau","pays":"France","age":23,"sprinteur":5.0,"rouleur":12.0,"flandrien":5.0,"puncheur":5.0,"grimpeur":10.0,"equipe":"Alpine - CMA CGM"},{"nom":"Samuel Mitchell","pays":"Australie","age":21,"sprinteur":13.0,"rouleur":5.0,"flandrien":7.0,"puncheur":5.0,"grimpeur":16.0,"equipe":"Alpine - CMA CGM"},{"nom":"Florian Winkler","pays":"Autrichien","age":35,"sprinteur":23.4,"rouleur":23.1,"flandrien":9.1,"puncheur":8.0,"grimpeur":6.0,"equipe":"T-Mobile - Phonak"},{"nom":"Matthias Gruber","pays":"Autrichien","age":27,"sprinteur":6.0,"rouleur":13.4,"flandrien":8.0,"puncheur":21.4,"grimpeur":30.0,"equipe":"T-Mobile - Phonak"},{"nom":"Daniel Araujo","pays":"Brésilien","age":33,"sprinteur":9.0,"rouleur":22.4,"flandrien":13.0,"puncheur":25.4,"grimpeur":30.0,"equipe":"T-Mobile - Phonak"},{"nom":"Mateo Ricci","pays":"Italien","age":24,"sprinteur":11.0,"rouleur":11.0,"flandrien":15.1,"puncheur":11.0,"grimpeur":8.0,"equipe":"T-Mobile - Phonak"},{"nom":"Koen Maas","pays":"Néerlandais","age":22,"sprinteur":16.3,"rouleur":9.5,"flandrien":9.5,"puncheur":8.0,"grimpeur":8.0,"equipe":"T-Mobile - Phonak"},{"nom":"Rubén Casado","pays":"Espagnol","age":22,"sprinteur":9.2,"rouleur":6.0,"flandrien":10.2,"puncheur":15.6,"grimpeur":10.2,"equipe":"T-Mobile - Phonak"},{"nom":"Simon Frei","pays":"Suisse","age":30,"sprinteur":7.3,"rouleur":5.3,"flandrien":18.1,"puncheur":5.3,"grimpeur":14.0,"equipe":"T-Mobile - Phonak"},{"nom":"Matthias Kessler","pays":"Allemagne","age":28,"sprinteur":8.7,"rouleur":8.7,"flandrien":9.2,"puncheur":8.7,"grimpeur":8.4,"equipe":"T-Mobile - Phonak"},{"nom":"Michael Brown","pays":"Angleterre","age":20,"sprinteur":8.8,"rouleur":10.0,"flandrien":8.8,"puncheur":18.4,"grimpeur":11.8,"equipe":"T-Mobile - Phonak"},{"nom":"Stuart O'Grady","pays":"Australie","age":27,"sprinteur":9.0,"rouleur":9.0,"flandrien":9.0,"puncheur":9.0,"grimpeur":9.0,"equipe":"T-Mobile - Phonak"},{"nom":"Nicolás Herrera","pays":"Espagne","age":20,"sprinteur":13.8,"rouleur":6.8,"flandrien":11.8,"puncheur":6.8,"grimpeur":6.8,"equipe":"T-Mobile - Phonak"},{"nom":"Benjamin Carter","pays":"Angleterre","age":18,"sprinteur":5.0,"rouleur":7.0,"flandrien":13.0,"puncheur":7.0,"grimpeur":5.0,"equipe":"T-Mobile - Phonak"},{"nom":"Henrik Nilsen","pays":"Danemark","age":19,"sprinteur":5.0,"rouleur":8.0,"flandrien":8.0,"puncheur":5.0,"grimpeur":8.0,"equipe":"T-Mobile - Phonak"},{"nom":"Thomas Bernard","pays":"Français","age":24,"sprinteur":7.0,"rouleur":22.1,"flandrien":10.0,"puncheur":23.1,"grimpeur":27.2,"equipe":"Non Attribuée"},{"nom":"Jonas Schmid","pays":"Suisse","age":22,"sprinteur":22.3,"rouleur":11.4,"flandrien":13.4,"puncheur":8.0,"grimpeur":5.0,"equipe":"Non Attribuée"},{"nom":"Johann Fischer","pays":"Allemand","age":35,"sprinteur":24.0,"rouleur":22.0,"flandrien":17.0,"puncheur":17.0,"grimpeur":10.0,"equipe":"Non Attribuée"},{"nom":"Quentin Dupire","pays":"Belge","age":34,"sprinteur":14.9,"rouleur":9.9,"flandrien":12.5,"puncheur":4.9,"grimpeur":6.0,"equipe":"Non Attribuée"},{"nom":"Bas Janssen","pays":"Néerlandais","age":24,"sprinteur":8.5,"rouleur":8.0,"flandrien":8.5,"puncheur":10.5,"grimpeur":8.5,"equipe":"Non Attribuée"},{"nom":"Niels Koster","pays":"Néerlandais","age":32,"sprinteur":6.6,"rouleur":8.6,"flandrien":14.7,"puncheur":10.6,"grimpeur":8.0,"equipe":"Non Attribuée"},{"nom":"Dmitri Sokolov","pays":"Russe","age":26,"sprinteur":10.4,"rouleur":9.0,"flandrien":8.4,"puncheur":10.0,"grimpeur":7.4,"equipe":"Non Attribuée"},{"nom":"Matthias Huber","pays":"Autrichien","age":25,"sprinteur":7.5,"rouleur":7.5,"flandrien":13.4,"puncheur":8.5,"grimpeur":9.0,"equipe":"Non Attribuée"},{"nom":"Jess Maas","pays":"Néerlandais","age":34,"sprinteur":12.0,"rouleur":7.0,"flandrien":10.0,"puncheur":11.8,"grimpeur":19.0,"equipe":"Non Attribuée"},{"nom":"Piotr Patapów","pays":"Pologne","age":28,"sprinteur":8.3,"rouleur":9.4,"flandrien":8.3,"puncheur":9.4,"grimpeur":9.9,"equipe":"Non Attribuée"},{"nom":"Luis Pérez","pays":"Colombie","age":20,"sprinteur":6.0,"rouleur":5.0,"flandrien":5.0,"puncheur":15.5,"grimpeur":21.0,"equipe":"Non Attribuée"},{"nom":"Pawel Seksiks","pays":"Pologne","age":27,"sprinteur":8.5,"rouleur":11.4,"flandrien":9.5,"puncheur":8.5,"grimpeur":8.5,"equipe":"Non Attribuée"},{"nom":"Michal Lewanski","pays":"Pologne","age":24,"sprinteur":8.0,"rouleur":8.0,"flandrien":12.0,"puncheur":16.3,"grimpeur":22.5,"equipe":"Non Attribuée"},{"nom":"Tadeusz Kapuściński","pays":"Pologne","age":18,"sprinteur":12.2,"rouleur":8.7,"flandrien":9.7,"puncheur":5.0,"grimpeur":5.0,"equipe":"Non Attribuée"},{"nom":"Lucas Moreau","pays":"France","age":21,"sprinteur":12.0,"rouleur":10.0,"flandrien":8.0,"puncheur":5.0,"grimpeur":12.0,"equipe":"Non Attribuée"},{"nom":"Charles Robinson","pays":"Australie","age":22,"sprinteur":5.0,"rouleur":5.0,"flandrien":10.0,"puncheur":5.0,"grimpeur":5.0,"equipe":"Non Attribuée"},{"nom":"Josef Winkler","pays":"Autrichien","age":30,"sprinteur":15.0,"rouleur":15.8,"flandrien":17.3,"puncheur":29.0,"grimpeur":23.0,"equipe":"Stidpmi Cycling Team"},{"nom":"Reto Frei","pays":"Suisse","age":30,"sprinteur":7.0,"rouleur":18.5,"flandrien":10.5,"puncheur":15.0,"grimpeur":29.0,"equipe":"Stidpmi Cycling Team"},{"nom":"Declan O’Riley","pays":"Irlandais","age":34,"sprinteur":8.0,"rouleur":7.1,"flandrien":5.0,"puncheur":7.1,"grimpeur":7.7,"equipe":"Stidpmi Cycling Team"},{"nom":"Daan Willems","pays":"Néerlandais","age":24,"sprinteur":13.2,"rouleur":16.2,"flandrien":17.5,"puncheur":13.2,"grimpeur":5.0,"equipe":"Stidpmi Cycling Team"},{"nom":"Pablo Varela","pays":"Espagnol","age":29,"sprinteur":9.0,"rouleur":14.4,"flandrien":7.0,"puncheur":15.4,"grimpeur":19.1,"equipe":"Stidpmi Cycling Team"},{"nom":"Rafael Barbosa","pays":"Brésilien","age":34,"sprinteur":5.0,"rouleur":3.6,"flandrien":5.0,"puncheur":8.6,"grimpeur":7.9,"equipe":"Stidpmi Cycling Team"},{"nom":"Vitor Gamito","pays":"France","age":28,"sprinteur":8.2,"rouleur":10.1,"flandrien":8.2,"puncheur":10.1,"grimpeur":10.9,"equipe":"Stidpmi Cycling Team"},{"nom":"Rafael Herrera","pays":"Venezuela","age":25,"sprinteur":11.9,"rouleur":5.0,"flandrien":5.9,"puncheur":14.7,"grimpeur":7.9,"equipe":"Stidpmi Cycling Team"},{"nom":"Mei Lin Zhang","pays":"Chine","age":22,"sprinteur":11.3,"rouleur":11.3,"flandrien":13.8,"puncheur":6.3,"grimpeur":5.0,"equipe":"Stidpmi Cycling Team"},{"nom":"Tariq Ben Ali","pays":"Maroc","age":23,"sprinteur":8.2,"rouleur":11.2,"flandrien":15.8,"puncheur":8.2,"grimpeur":6.0,"equipe":"Stidpmi Cycling Team"},{"nom":"Olaf Cyclinsson","pays":"Suède","age":27,"sprinteur":8.9,"rouleur":8.5,"flandrien":8.9,"puncheur":9.8,"grimpeur":8.9,"equipe":"Stidpmi Cycling Team"},{"nom":"Baptiste Lemoine","pays":"France","age":18,"sprinteur":7.0,"rouleur":10.9,"flandrien":8.0,"puncheur":8.9,"grimpeur":9.3,"equipe":"Stidpmi Cycling Team"},{"nom":"Mathieu Lemoine","pays":"France","age":19,"sprinteur":7.0,"rouleur":10.0,"flandrien":8.0,"puncheur":5.0,"grimpeur":9.0,"equipe":"Stidpmi Cycling Team"},{"nom":"Giovanni Conti","pays":"Italien","age":28,"sprinteur":30.0,"rouleur":28.4,"flandrien":15.4,"puncheur":16.3,"grimpeur":6.3,"equipe":"Vc Central by Ascend"},{"nom":"Ralf Brandt","pays":"Allemand","age":23,"sprinteur":9.4,"rouleur":7.4,"flandrien":12.4,"puncheur":10.4,"grimpeur":8.9,"equipe":"Vc Central by Ascend"},{"nom":"Henry Foster","pays":"Britannique","age":37,"sprinteur":11.0,"rouleur":21.0,"flandrien":16.0,"puncheur":9.6,"grimpeur":0.4,"equipe":"Vc Central by Ascend"},{"nom":"Héctor Molina","pays":"Espagnol","age":28,"sprinteur":6.3,"rouleur":12.3,"flandrien":8.3,"puncheur":14.5,"grimpeur":23.6,"equipe":"Vc Central by Ascend"},{"nom":"Ronan Walsh","pays":"Irlandais","age":27,"sprinteur":11.2,"rouleur":20.7,"flandrien":19.7,"puncheur":15.2,"grimpeur":13.2,"equipe":"Vc Central by Ascend"},{"nom":"Carlo Benedetti","pays":"Italien","age":30,"sprinteur":8.2,"rouleur":15.9,"flandrien":11.2,"puncheur":13.7,"grimpeur":16.2,"equipe":"Vc Central by Ascend"},{"nom":"Michel Baston","pays":"France","age":28,"sprinteur":11.4,"rouleur":9.4,"flandrien":9.4,"puncheur":8.5,"grimpeur":8.5,"equipe":"Vc Central by Ascend"},{"nom":"Mederic Dumoulin","pays":"France","age":27,"sprinteur":8.4,"rouleur":8.4,"flandrien":8.4,"puncheur":8.4,"grimpeur":8.4,"equipe":"Vc Central by Ascend"},{"nom":"Lachlan Sterling","pays":"Ecosse","age":25,"sprinteur":8.9,"rouleur":10.9,"flandrien":10.9,"puncheur":14.9,"grimpeur":9.9,"equipe":"Vc Central by Ascend"},{"nom":"Giovanni Esposito","pays":"Italie","age":25,"sprinteur":11.0,"rouleur":10.0,"flandrien":13.0,"puncheur":10.0,"grimpeur":13.0,"equipe":"Vc Central by Ascend"},{"nom":"Pablo García","pays":"Espagnol","age":29,"sprinteur":7.3,"rouleur":20.7,"flandrien":13.8,"puncheur":28.3,"grimpeur":30.0,"equipe":"Oxbow - BFM TV"},{"nom":"Josef Leitner","pays":"Autrichien","age":22,"sprinteur":9.9,"rouleur":8.4,"flandrien":10.9,"puncheur":22.8,"grimpeur":12.9,"equipe":"Oxbow - BFM TV"},{"nom":"Fabian Keller","pays":"Suisse","age":23,"sprinteur":6.4,"rouleur":12.5,"flandrien":9.4,"puncheur":14.5,"grimpeur":18.0,"equipe":"Oxbow - BFM TV"},{"nom":"Gabriel Souza","pays":"Brésilien","age":31,"sprinteur":5.7,"rouleur":6.5,"flandrien":7.7,"puncheur":8.9,"grimpeur":5.7,"equipe":"Oxbow - BFM TV"},{"nom":"Jonas Meier","pays":"Suisse","age":37,"sprinteur":6.4,"rouleur":5.4,"flandrien":3.0,"puncheur":5.4,"grimpeur":7.0,"equipe":"Oxbow - BFM TV"},{"nom":"Riccardo Giuliani","pays":"Italien","age":34,"sprinteur":16.2,"rouleur":18.2,"flandrien":9.2,"puncheur":8.2,"grimpeur":8.2,"equipe":"Oxbow - BFM TV"},{"nom":"Raj Patel","pays":"Indien","age":36,"sprinteur":8.0,"rouleur":0.0,"flandrien":1.6,"puncheur":4.0,"grimpeur":4.0,"equipe":"Oxbow - BFM TV"},{"nom":"Daniel Gruber","pays":"Autrichien","age":36,"sprinteur":2.4,"rouleur":4.4,"flandrien":2.0,"puncheur":3.4,"grimpeur":6.0,"equipe":"Oxbow - BFM TV"},{"nom":"Olivier Maes","pays":"Belge","age":22,"sprinteur":7.1,"rouleur":6.1,"flandrien":11.5,"puncheur":8.1,"grimpeur":7.4,"equipe":"Oxbow - BFM TV"},{"nom":"Lance Course","pays":"France","age":28,"sprinteur":9.5,"rouleur":8.5,"flandrien":9.5,"puncheur":11.5,"grimpeur":9.5,"equipe":"Oxbow - BFM TV"},{"nom":"Pierre Dupont","pays":"France","age":27,"sprinteur":22.7,"rouleur":15.9,"flandrien":15.9,"puncheur":10.0,"grimpeur":10.0,"equipe":"Oxbow - BFM TV"},{"nom":"Idriss Patapon","pays":"France","age":27,"sprinteur":8.3,"rouleur":10.1,"flandrien":8.9,"puncheur":8.3,"grimpeur":8.3,"equipe":"Oxbow - BFM TV"},{"nom":"Gaspard Dufresne","pays":"France","age":18,"sprinteur":5.8,"rouleur":8.0,"flandrien":5.8,"puncheur":12.4,"grimpeur":9.8,"equipe":"Oxbow - BFM TV"},{"nom":"Éloi Duchesne","pays":"France","age":20,"sprinteur":19.0,"rouleur":7.7,"flandrien":5.7,"puncheur":5.0,"grimpeur":5.0,"equipe":"Oxbow - BFM TV"},{"nom":"Alban Rougier","pays":"France","age":20,"sprinteur":6.4,"rouleur":8.4,"flandrien":16.3,"puncheur":8.4,"grimpeur":6.0,"equipe":"Oxbow - BFM TV"},{"nom":"Jack Morgan","pays":"Angleterre","age":28,"sprinteur":11.0,"rouleur":13.0,"flandrien":11.0,"puncheur":14.0,"grimpeur":10.0,"equipe":"Oxbow - BFM TV"},{"nom":"Louis Lambert","pays":"Belge","age":28,"sprinteur":27.4,"rouleur":20.4,"flandrien":25.3,"puncheur":19.9,"grimpeur":7.0,"equipe":"V-Raptors"},{"nom":"Karl Schneider","pays":"Allemand","age":23,"sprinteur":6.0,"rouleur":13.6,"flandrien":6.0,"puncheur":16.6,"grimpeur":23.9,"equipe":"V-Raptors"},{"nom":"Hugo Lefèvre","pays":"Français","age":27,"sprinteur":16.4,"rouleur":13.5,"flandrien":27.7,"puncheur":17.1,"grimpeur":5.0,"equipe":"V-Raptors"},{"nom":"Padraig Keane","pays":"Irlandais","age":35,"sprinteur":15.4,"rouleur":16.4,"flandrien":14.1,"puncheur":8.4,"grimpeur":10.0,"equipe":"V-Raptors"},{"nom":"Edouard Lories","pays":"Belge","age":35,"sprinteur":8.1,"rouleur":7.1,"flandrien":6.2,"puncheur":4.1,"grimpeur":9.0,"equipe":"V-Raptors"},{"nom":"Gilles Verstraete","pays":"Belge","age":28,"sprinteur":7.4,"rouleur":7.4,"flandrien":16.4,"puncheur":8.4,"grimpeur":9.0,"equipe":"V-Raptors"},{"nom":"Benjamin Dujardin","pays":"Belge","age":37,"sprinteur":6.0,"rouleur":7.0,"flandrien":5.0,"puncheur":0.0,"grimpeur":0.0,"equipe":"V-Raptors"},{"nom":"Lee Byung-ho","pays":"Coréen","age":37,"sprinteur":5.6,"rouleur":2.6,"flandrien":0.5,"puncheur":2.6,"grimpeur":9.0,"equipe":"V-Raptors"},{"nom":"Jack Varkana","pays":"Australien","age":28,"sprinteur":9.5,"rouleur":8.6,"flandrien":9.5,"puncheur":11.3,"grimpeur":9.5,"equipe":"V-Raptors"},{"nom":"Julien Moreau","pays":"Belgique","age":23,"sprinteur":9.4,"rouleur":10.4,"flandrien":9.4,"puncheur":9.4,"grimpeur":8.0,"equipe":"V-Raptors"},{"nom":"Robert Wilson","pays":"Australie","age":21,"sprinteur":21.6,"rouleur":13.2,"flandrien":14.2,"puncheur":5.0,"grimpeur":5.0,"equipe":"V-Raptors"},{"nom":"Vittorio Mancini","pays":"Italie","age":19,"sprinteur":6.9,"rouleur":6.9,"flandrien":6.9,"puncheur":6.9,"grimpeur":13.9,"equipe":"V-Raptors"},{"nom":"Jasper Whitmore","pays":"Angleterre","age":19,"sprinteur":7.9,"rouleur":9.9,"flandrien":7.9,"puncheur":8.9,"grimpeur":9.9,"equipe":"V-Raptors"},{"nom":"Julien Dubois","pays":"France","age":18,"sprinteur":7.0,"rouleur":7.0,"flandrien":9.0,"puncheur":7.0,"grimpeur":5.0,"equipe":"V-Raptors"},{"nom":"Luca Bianchi","pays":"Italie","age":18,"sprinteur":5.0,"rouleur":8.0,"flandrien":9.0,"puncheur":5.0,"grimpeur":7.0,"equipe":"V-Raptors"},{"nom":"Javier Martínez","pays":"Espagnol","age":37,"sprinteur":12.0,"rouleur":19.8,"flandrien":10.0,"puncheur":19.8,"grimpeur":23.7,"equipe":"Team HK"},{"nom":"William Harris","pays":"Britannique","age":31,"sprinteur":28.4,"rouleur":18.8,"flandrien":14.8,"puncheur":12.0,"grimpeur":6.0,"equipe":"Team HK"},{"nom":"Simon Baumann","pays":"Suisse","age":36,"sprinteur":8.0,"rouleur":15.8,"flandrien":7.0,"puncheur":15.8,"grimpeur":17.7,"equipe":"Team HK"},{"nom":"Quentin Verstraete","pays":"Belge","age":26,"sprinteur":5.0,"rouleur":8.0,"flandrien":8.0,"puncheur":23.3,"grimpeur":30.0,"equipe":"Team HK"},{"nom":"Nicolas Peeters","pays":"Belge","age":23,"sprinteur":7.0,"rouleur":19.5,"flandrien":8.0,"puncheur":17.5,"grimpeur":21.8,"equipe":"Team HK"},{"nom":"Clément Faure","pays":"Français","age":25,"sprinteur":5.0,"rouleur":9.0,"flandrien":6.0,"puncheur":16.0,"grimpeur":20.2,"equipe":"Team HK"},{"nom":"Jean le suppléant","pays":"France","age":28,"sprinteur":8.4,"rouleur":9.0,"flandrien":8.4,"puncheur":10.0,"grimpeur":10.2,"equipe":"Team HK"},{"nom":"John Miller","pays":"Angleterre","age":22,"sprinteur":5.0,"rouleur":11.2,"flandrien":6.0,"puncheur":10.2,"grimpeur":12.3,"equipe":"Team HK"},{"nom":"Alessandro Moretti","pays":"Italie","age":23,"sprinteur":5.0,"rouleur":6.6,"flandrien":5.0,"puncheur":8.6,"grimpeur":8.9,"equipe":"Team HK"},{"nom":"Joseph Clark","pays":"Canada","age":22,"sprinteur":16.0,"rouleur":11.4,"flandrien":7.4,"puncheur":6.0,"grimpeur":7.0,"equipe":"Team HK"},{"nom":"Jean le Rajout","pays":"France","age":27,"sprinteur":7.0,"rouleur":10.7,"flandrien":7.4,"puncheur":9.0,"grimpeur":10.2,"equipe":"Team HK"},{"nom":"Boris Kuznetsov","pays":"Suisse","age":21,"sprinteur":7.0,"rouleur":12.3,"flandrien":8.0,"puncheur":13.3,"grimpeur":13.5,"equipe":"Team HK"},{"nom":"James Anderson","pays":"Etats-Unis","age":18,"sprinteur":8.0,"rouleur":9.0,"flandrien":8.0,"puncheur":5.0,"grimpeur":6.0,"equipe":"Team HK"},{"nom":"Gabriel Caron","pays":"France","age":21,"sprinteur":5.0,"rouleur":5.0,"flandrien":8.0,"puncheur":10.0,"grimpeur":8.0,"equipe":"Team HK"},{"nom":"Omar Al-Farsi","pays":"Egypte","age":19,"sprinteur":9.0,"rouleur":9.0,"flandrien":9.0,"puncheur":9.0,"grimpeur":5.0,"equipe":"Team HK"},{"nom":"Theo Montel","pays":"France","age":30,"sprinteur":11.0,"rouleur":20.0,"flandrien":10.0,"puncheur":22.0,"grimpeur":30.0,"equipe":"Team Khali"},{"nom":"Joris van der Bleuuten","pays":"Belgique","age":31,"sprinteur":22.0,"rouleur":12.0,"flandrien":15.0,"puncheur":23.0,"grimpeur":10.0,"equipe":"Team Khali"},{"nom":"Mikkel Sørensen","pays":"Danemark","age":30,"sprinteur":13.0,"rouleur":14.0,"flandrien":20.0,"puncheur":12.0,"grimpeur":5.0,"equipe":"Team Khali"},{"nom":"Luca Bellini","pays":"Italie","age":29,"sprinteur":8.0,"rouleur":8.0,"flandrien":8.0,"puncheur":9.0,"grimpeur":15.0,"equipe":"Team Khali"},{"nom":"Nikos Papadakis","pays":"Grece","age":34,"sprinteur":5.0,"rouleur":6.0,"flandrien":6.0,"puncheur":6.0,"grimpeur":6.0,"equipe":"Team Khali"},{"nom":"Felix Beaulieu","pays":"Canada","age":29,"sprinteur":6.0,"rouleur":9.0,"flandrien":6.0,"puncheur":8.0,"grimpeur":8.0,"equipe":"Team Khali"},{"nom":"Neil Wingfield","pays":"Royaume Uni","age":32,"sprinteur":5.0,"rouleur":8.0,"flandrien":8.0,"puncheur":8.0,"grimpeur":8.0,"equipe":"Team Khali"},{"nom":"Iker Etxeberria","pays":"Espagne","age":28,"sprinteur":5.0,"rouleur":6.0,"flandrien":5.0,"puncheur":7.0,"grimpeur":8.0,"equipe":"Team Khali"},{"nom":"Jackson Reed","pays":"USA","age":22,"sprinteur":6.0,"rouleur":6.0,"flandrien":6.0,"puncheur":6.0,"grimpeur":5.0,"equipe":"Team Khali"},{"nom":"Cedrik Kerouek","pays":"France","age":20,"sprinteur":6.0,"rouleur":6.0,"flandrien":5.0,"puncheur":6.0,"grimpeur":5.0,"equipe":"Team Khali"}];
+const skills = ['sprinteur','rouleur','flandrien','puncheur','grimpeur'];
+// Somme calculée sur les cinq notes, en dixièmes pour éviter les erreurs d'arrondi.
+for (const rider of riders) {
+  rider.total = skills.reduce((sum, skill) => sum + Math.round(Number(rider[skill] ?? 0) * 10), 0) / 10;
+}
+const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
+const $ = (id) => document.getElementById(id);
+const state = {sortKey: 'nom', direction: 1};
+const formatScore = (value) => value == null ? '—' : Number(value).toLocaleString('fr-FR', {minimumFractionDigits:1, maximumFractionDigits:1});
+const normalize = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+// Échelle fixe 0–30, commune aux cinq caractéristiques : bleu → neutre → rouge.
+function scoreColor(value) {
+  const t = Math.min(1, Math.max(0, Number(value) / 30));
+  const from = t <= .5 ? [43,108,176] : [248,248,246];
+  const to   = t <= .5 ? [248,248,246] : [185,28,56];
+  const weight = (t <= .5 ? t : t-.5) * 2;
+  const rgb = from.map((v,i) => Math.round(v + (to[i] - v) * weight));
+  // Couleur du texte déterminée par le contraste pour toutes les valeurs intermédiaires.
+  const linear = rgb.map(v => {const c=v/255;return c<=.04045 ? c/12.92 : ((c+.055)/1.055)**2.4;});
+  const luminance = .2126*linear[0] + .7152*linear[1] + .0722*linear[2];
+  return {background: `rgb(${rgb.join(',')})`, foreground: luminance < .18 ? '#fff' : '#142f39'};
+}
+const getMinimum = (id) => { const value = $(id).value.trim().replace(',', '.'); return value === '' ? null : Number(value); };
 
-    <h1>Résultats Saison</h1>	
+const teams = [...new Set(riders.map(r => r.equipe).filter(Boolean))].sort(collator.compare);
+for (const team of teams) { const opt = document.createElement('option'); opt.value = team; opt.textContent = team; $('team').append(opt); }
+$('count-total').textContent = riders.length.toLocaleString('fr-FR');
 
-    <h2 href="url1">Classement général par coureur</h2>
-    <a href="classement_general_saison_apres_uaetour.html">Classement général</a>
-    <h2 href="url1">Classement général par équipe</h2>
-    <a href="url1">Classement général</a>
-
-	
-    <h1>Résultats par course</h1>
-    
-    <!-- Liste de toutes les courses -->
-    <h2>Tour Down Under</h2>
-
-    <h2>Cadel Evans Ocean Road Race</h2>
-
-    <h2>Tour des Emirats Arabes Unis</h2>
-    <a href="UAETour.html">Classement général</a>
-
-    <h2>Het Nieuwsblad</h2>
-    <a href="hok.html">Classement général</a>
-
-    <h2>Strade Bianche</h2>
-    <a href="strade_bianche">Classement général</a>
-
-    <h2>Paris-Nice</h2>
-    <a href="parisnice.html">Classement général</a>
-
-    <h2>Tirreno-Adriatico</h2>
-    <a href="tirreno.html">Classement général</a>
-
-    <h2>Milan-San Remo</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-
-    <h2>Tour de Catalogne</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-
-    <h2>Bruges-La Panne</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-
-    <h2>GP E3</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-
-    <h2>Gand-Wevelgem</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-
-    <h2>A travers la Flandre</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-
-    <h2>Tour des Flandres</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour du Pays-Basque</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Paris-Roubaix</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Amstel Gold Race</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Flèche Wallonne</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Liège-Bastogne-Liège</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour de Romandie</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Eschborn-Francfort</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Giro</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Critérium du Dauphiné</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour de Suisse</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour de France</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Clasica San Sebastian</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour de Pologne</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Vuelta</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Bretagne Classic</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour du Benelux</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Hambourg Cyclassics</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>GP de Québec</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>GP de Montréal</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour de Lombardie</h2>
-    <a href="url1">Classement général</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour du Guangxi</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-	
-    <h2>Tour de l'Avenir</h2>
-    <a href="url1">Classement général</a>
-    <a href="url2">Classement par points</a>
-    <a href="url3">Classement de la montagne</a>
-    <a href="url4">Classement par équipes</a>
-
-    <!-- Répétez pour les courses restantes, en changeant les URL si nécessaire -->
-
+function filterRows() {
+  const search = normalize($('search').value.trim());
+  const minAge = getMinimum('age-min'), maxAge = getMinimum('age-max');
+  const team = $('team').value;
+  const mins = Object.fromEntries(skills.map(skill => [skill, getMinimum('min-' + skill)]));
+  const filtered = riders.filter(r => {
+    if (search && !normalize(r.nom + ' ' + r.pays).includes(search)) return false;
+    if (team && r.equipe !== team) return false;
+    if (minAge !== null && (r.age === null || r.age < minAge)) return false;
+    if (maxAge !== null && (r.age === null || r.age > maxAge)) return false;
+    return skills.every(skill => mins[skill] === null || (r[skill] !== null && r[skill] >= mins[skill]));
+  });
+  filtered.sort((a,b) => {
+    const left = a[state.sortKey], right = b[state.sortKey];
+    if (left == null || left === '') return right == null || right === '' ? 0 : 1;
+    if (right == null || right === '') return -1;
+    const c = typeof left === 'number' && typeof right === 'number' ? left - right : collator.compare(String(left), String(right));
+    return state.direction * c;
+  });
+  return filtered;
+}
+function td(value, className) {
+  const cell = document.createElement('td');
+  if (className) cell.className = className;
+  cell.textContent = (value === null || value === undefined || value === '') ? '—' : value;
+  return cell;
+}
+function render() {
+  const filtered = filterRows();
+  const fragment = document.createDocumentFragment();
+  for (const r of filtered) {
+    const tr = document.createElement('tr');
+    tr.append(td(r.nom, 'name'), td(r.pays), td(r.age, 'num'));
+    for (const skill of skills) {
+      const cell = document.createElement('td'); cell.className = 'num rating-cell';
+      const span = document.createElement('span');
+      span.className = 'rating';
+      span.textContent = formatScore(r[skill]);
+      if (r[skill] !== null && Number.isFinite(r[skill])) {
+        const color = scoreColor(r[skill]);
+        cell.style.backgroundColor = color.background;
+        cell.style.color = color.foreground;
+        cell.title = `${skill[0].toUpperCase() + skill.slice(1)} : ${formatScore(r[skill])} / 30`;
+      }
+      cell.append(span); tr.append(cell);
+    }
+    tr.append(td(formatScore(r.total), 'num total-cell'));
+    tr.append(td(r.equipe,'team')); fragment.append(tr);
+  }
+  $('riders').replaceChildren(fragment);
+  $('count-visible').textContent = filtered.length.toLocaleString('fr-FR');
+  $('empty').style.display = filtered.length ? 'none' : 'block';
+  for (const button of document.querySelectorAll('th button[data-sort]')) {
+    const active = button.dataset.sort === state.sortKey;
+    button.setAttribute('aria-sort', active ? (state.direction === 1 ? 'ascending' : 'descending') : 'none');
+    button.querySelector('.sort').textContent = active ? (state.direction === 1 ? '▲' : '▼') : '↕';
+  }
+  const minAge = getMinimum('age-min'), maxAge = getMinimum('age-max');
+  $('filter-hint').textContent = minAge !== null && maxAge !== null && minAge > maxAge
+    ? 'L’âge minimum est supérieur à l’âge maximum.'
+    : 'Les filtres se cumulent et s’appliquent automatiquement.';
+}
+for (const field of document.querySelectorAll('input,select')) {field.addEventListener('input',render);field.addEventListener('change',render);}
+for (const button of document.querySelectorAll('th button[data-sort]')) {
+  button.addEventListener('click', () => {
+    const key = button.dataset.sort;
+    if (state.sortKey === key) state.direction *= -1;
+    else { state.sortKey = key; state.direction = ['age', ...skills, 'total'].includes(key) ? -1 : 1; }
+    render();
+  });
+}
+$('reset').addEventListener('click', () => {
+  for (const field of document.querySelectorAll('input,select')) field.value = '';
+  render();
+});
+render();
+</script>
 </body>
 </html>
